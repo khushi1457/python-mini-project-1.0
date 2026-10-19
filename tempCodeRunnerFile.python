@@ -1,0 +1,40 @@
+"""
+Pydantic models for LinkWatch analysis reports.
+
+Defines the structured data schemas used throughout the project.
+"""
+from typing import List, Optional
+from pydantic import BaseModel, Field
+
+class DependencyInfo(BaseModel):
+    """Represents a single dependency in the project."""
+    name: str = Field(description="The package name.")
+    current_version: str = Field(description="The version currently used in the project.")
+    required_range: Optional[str] = Field(default=None, description="The version range specified in config files.")
+    analysis_status: str = Field(description="Overall status (e.g., 'OK', 'Outdated', 'Vulnerable').")
+    freshness_score: float = Field(description="A score indicating how recent the package's releases are (0.0 to 1.0).")
+
+class SecurityRisk(BaseModel):
+    """Details a specific security vulnerability."""
+    vulnerability_id: str = Field(description="CVE or advisory ID.")
+    severity: str = Field(description="CVSS score classification (e.g., 'High', 'Medium').")
+    affected_versions: List[str] = Field(description="Versions susceptible to this vulnerability.")
+    fix_version: Optional[str]] = Field(description="The version that resolves the issue.")
+
+class MaintenanceRisk(BaseModel):
+    """Details a maintenance or operational risk."""
+    issue_type: str = Field(description="Type of issue (e.g., 'Deprecated', 'Unmaintained').")
+    reason: str = Field(description="Detailed explanation of the risk.")
+    suggested_action: Optional[str] = Field(description="Concrete steps to mitigate the risk.")
+
+class AnalysisReport(BaseModel):
+    """The comprehensive, final output report of LinkWatch."""
+    project_name: str = Field(description="The name of the project being scanned.")
+    scan_timestamp: str = Field(description="ISO 8601 timestamp of the scan.")
+    dependencies: List[DependencyInfo] = Field(description="List of all scanned dependencies and their current status.")
+    risks: List[str] = Field(description="A summary of all identified risks (Security, Maintenance, License).")
+    recommendations: List[str] = Field(description="Actionable advice for the maintainer.")
+    suggested_upgrades: List[str] = Field(description="Concrete version bumps suggested to resolve issues.")
+
+# Note: License compatibility checking would typically require a more complex model 
+# structure involving license comparison logic.
